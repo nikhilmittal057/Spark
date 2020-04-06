@@ -68,7 +68,6 @@ object useCase1 extends App {
   val rdd = full_final_df.rdd.cache()
   val List = rdd.map(tuple => (tuple.get(0).asInstanceOf[Int], tuple.get(1).asInstanceOf[String], tuple.get(2).asInstanceOf[Long])).collect()
   println("year," + "top," + "total")
-
   for (tuple <- List)
   {
    var  top = tuple._2
