@@ -41,6 +41,7 @@ object wordCount extends App {
   //WORD COUNT USING DATAFRAME
 
   val cerealDF = spark.read.format("csv").load("/home/nikhil/Desktop/Datasets/cereal.csv").cache()
+  cerealDF.show(false)
   val wordsDF = cerealDF.select(split(cerealDF("_c0"),";").alias("words")).cache()
 
   // Spark SQL "explode" function is used to split an array or DataFrame columns to rows

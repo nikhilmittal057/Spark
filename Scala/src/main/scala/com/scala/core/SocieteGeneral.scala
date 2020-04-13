@@ -17,11 +17,10 @@ object SocieteGeneral extends App {
   val AverageDegree =  2*(e/n)
 
   val finalDF=  degrees.where($"degree" >= AverageDegree).cache()
- val sorted_rdd =  finalDF.sort(desc("degree"), asc("vertices")).rdd
+  val sorted_rdd = finalDF.sort($"degree".desc, $"vertices".asc).rdd
+// val sorted_rdd =  finalDF.sort(desc("degree"), asc("vertices")).rdd
   val pairedRDD = sorted_rdd.map(tuple => (tuple.get(0).asInstanceOf[Int], tuple.get(1).asInstanceOf[Long])).collect()
   println("vertex," + "degree")
   for(tuple <- pairedRDD)
   println(tuple._1 +"," +tuple._2)
 }
-// val degree_sorted_RDD = finalDF.orderBy(col("degree").desc).rdd
-//val degree_sorted_RDD = finalDF.rdd

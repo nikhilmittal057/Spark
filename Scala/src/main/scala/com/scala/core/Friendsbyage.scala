@@ -21,3 +21,5 @@ object Friendsbyage extends App {
   val results = averagesByAge.collect()
   results.sorted.foreach(println)
 }
+
+

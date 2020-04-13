@@ -74,17 +74,23 @@ object useCase1 extends App {
     if (tuple._2.toString.split(",").length>1)
       top =  "\"" + tuple._2 + "\""
      println(tuple._1 + "," + top + "," + tuple._3)
-  }
-
-
-  //})
-
+  } }
 /*.map(x => {
     x.get(0)
     x.getAs(1)
     x.get(2)
   })
-  println("year," + "top," + "total")
+  println("year," + "top," + "total") */
 
- */
-}
+/*O/P ->
+year,top,total
+2004,"Fentanyl,Methadone",240
+2005,"Codeine,Fentanyl,Methadone",60
+2006,"Fentanyl,Morphine",40
+2008,"Codeine,Morphine",280
+2009,"Codeine,Fentanyl,Methadone,Morphine",120
+2010,Methadone,240
+2011,"Methadone,Morphine",120
+2012,Codeine,80
+2013,"Codeine,Fentanyl,Morphine",160
+*/
