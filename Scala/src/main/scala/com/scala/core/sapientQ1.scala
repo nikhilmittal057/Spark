@@ -11,9 +11,9 @@ object sapientQ1 {
     // val fSource = Source.fromFile(fname)
 
     val list = Source.fromFile("/home/nikhil/Desktop/Datasets/sapientQ1.csv").getLines().drop(1)
-      .filter(line => !line.isEmpty)
+      //.filter(line => !line.isEmpty)
       .map(line =>{
-      val value = line.split(";")
+      val value = line.split(",")
         (value(0), value(1))
     })
       .toList
