@@ -10,16 +10,16 @@ object sapientQ1 {
     // val fname = "/home/nikhil/Desktop/Datasets/sapientQ1.csv"
     // val fSource = Source.fromFile(fname)
 
-   /* val list = Source.fromFile("/home/nikhil/Desktop/Datasets/sapientQ1.csv").getLines().drop(1)
-      //.filter(line => !line.isEmpty)
+    /*val list = Source.fromFile("/home/nikhil/Desktop/Datasets/sapientQ1.csv").getLines().drop(1)
+    .filter(line => !line.isEmpty)
       .map(line =>{
       val value = line.split(",")
         (value(0), value(1))
     })
-      .toList
+      .toList*/
 
-   val unique = list.toSet
-    unique.foreach(println)
+   //val unique = list.toSet
+    //unique.foreach(println)
  //   val a = list.distinct
  // val a = Set(list: _*)*/
   Source.fromFile("/home/nikhil/Desktop/Datasets/sapientQ1.csv").getLines()
