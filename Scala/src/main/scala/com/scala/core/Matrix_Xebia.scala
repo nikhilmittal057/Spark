@@ -41,6 +41,7 @@ object Matrix_Xebia extends App {
   }*/
 
 
+
     for(i <- 0 to 1) {
       for(j <- 0 to 1) {
         if(Matrix_A(i)(j) <= Matrix_B(i)(j))
@@ -48,9 +49,9 @@ object Matrix_Xebia extends App {
           else
           Matrix_C(i)(j) = Matrix_A(i)(j)
         print(" "+Matrix_C(i)(j))
-      }//end of j loop
+      }
       println()
-    }//end of i loop
+    }
 
 
 }
