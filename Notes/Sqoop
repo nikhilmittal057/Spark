@@ -1,0 +1,113 @@
+Sqoop
+
+Partial table load scala code:-
+
+val month = Array (1,2,3,4,5,6,7,8,9,10,11,12)
+month.foreach ( mon => 
+
+{
+
+val query = "(select * from <table name> where month = $mon)"
+val df = spark.read.format("JDBC")
+.option("url", jdbcurl)
+.option("dtable", query)
+.option("driver", "oracle.jdbc.driver.OracleDriver")
+.option("user", jdbcUsername)
+.option("password", jdbcPassword)
+.option("customSchema", "month_id INT, .............)
+.load()
+)
+
+
+
+
+
+sqoop help <command name>
+
+1.sqoop list-databases --connect jdbc:mysql://localhost:3306/ --username root --password root
+2.sqoop list-tables --connect jdbc:mysql://localhost:3306/org --username root --password root
+
+TABLE BASE IMPORT:-
+---------------------------------
+
+3.sqoop import --connect jdbc:mysql://localhost:3306/org --username root --password root --table emp --target-dir /sqoop/
+4.sqoop import --connect jdbc:mysql://localhost:3306/org --username root --password root --table emp --target-dir /sqoop/ -m 1 --delete-target-dir
+5.sqoop import --connect jdbc:mysql://localhost:3306/org --username root --password root --table emp --target-dir /sqoop/ -m 1 --delete-target-dir --as-sequencefile
+6.sqoop import --connect jdbc:mysql://localhost:3306/org --username root --password root --table emp --target-dir /sqoop/ -m 1 --delete-target-dir --as-textfile --fields-terminated-by '\t' --columns name,age --direct --split-by name --mapreduce-job-name "=EMP_TABLE_EXPORT -incremental 'append' --check-column sno --last-value 4.
+
+QUERY BASED IMPORT RATHER THAN TABLE IMPORT-->
+----------------------------------------------------------------------------------------
+7.sqoop import --connect jdbc:mysql://localhost:3306/org --username root --password root --query 'select * from emp where $CONDITIONS' --target-dir /sqoop/ -m 3 --delete-target-dir --as-textfile --fields-terminated-by '\t' --split-by sno
+
+Evaluate the Query--> to check what the query returning and compare that output  with what output you want, if both are same then use that query into import commands. 
+8.sqoop eval --connect jdbc:mysql://localhost:3306/org --username root --password root --query 'select age, name, place from emp'
+
+
+TABLE BASED CODEGEN:-
+------------------------------------------
+
+09.sqoop codegen --connect jdbc:mysql://localhost:3306/org --username root --password root --table emp -->emp.java
+10.sqoop codegen --connect jdbc:mysql://localhost:3306/org --username root --password root --table emp --class-name Emp --> Emp.java
+11.sqoop codegen --connect jdbc:mysql://localhost:3306/org --username root --password root --package-name org.sqoop.Emp --> org/sqoop/Emp/emp.java (Package)
+
+QUERY BASED CODEGEN:-
+-----------------------------------------
+12.sqoop codegen --connect jdbc:mysql://localhost:3306/org --username root --password root --query 'select * from emp where $CONDITION' -- QueryResult.java.
+
+IMPORT-ALL-TABLES:-
+--------------------------------
+sqoop import-all-tables --connect jdbc:mysql://localhost:3306/org --username root --password root --warehouse-dir /org -m 1
+
+EXPORT COMMAND:-
+---------------------------------
+
+> Sqoop export --connect jdbc:mysql://localhost:3306/org --username root --password root --export-dir /nyse --table stocks --input-fields terminated-by '\t'.
+
+JOBS:- is used to save import and export commands and work with them again and again.
+
+
+IMPORT-ALL-TABLES WITH --SPLIT-BY :-
+----------------------------------------------------------
+
+
+
+
+IMPORTING DATA FROM MYSQL(RDBMS) TO HIVE:-
+
+1) sqoop import --connect jdbc:mysql://localhost:3306/org --username root --password root --table emp | --hive-database apache --hive-table emp_hive --hive-import --create-hive-table
+    ----------------------------------------------------------------------------------------------------------------------------------------------------   -----------------------------------------------------------------------------------------------------------------
+                          MYSQL PART                                                                                                                                                    HIVE PART
+ 
+Incremental import arguments:
+   --check-column <column>        Source column to check for incremental change
+   --incremental <import-type>    Define an incremental import of type 'append' or 'lastmodified'
+   --last-value <value>           Last imported value in the incremental check column
+
+
+
+SQL QUERIES:-
+
+1.create table info as select sno, name, place from emp;
+
+
+
+
+
+
+
+
+   
+8. rm:
+
+ rmdir: `/sqoop/emp': Directory is not empty, use to delete the empty directory
+ The command –rm use to delete files.
+ hadoop fs -rmr 0r -rm - r:- use to delete the non empty directories (recursively)
+
+-Directories can’t be deleted by the –rm command, we need to use the –rm r (recursive remove) command to delete directories and files inside them. Only files can be removed     using the –rm command.
+
+• The –skipTrash option is used to bypass the trash, if enabled, and then it immediately deletes the source as mentioned in the tag.
+• The –rR option is used to recursively delete directories
+
+
+                                                           
+

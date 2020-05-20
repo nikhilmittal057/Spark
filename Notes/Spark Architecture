@@ -1,0 +1,116 @@
+Spark Architecture
+
+
+- what is spark and feature.
+- overview of spark architecture.
+- spark Ecosystem components.
+- RDD.
+
+• Spark is  an open source cluster- computing framework for real time  data processing. it is also designed for fast computation.
+• In Memory Processing
+• parallelism (parallel data computation).
+
+
+                                                Speed
+                                                   |
+        Advanced Analytics              |                             Powerful Caching
+                                      \            |                            /
+                                       \           |                           /
+                                        \          |                          /
+                                        
+               Real-Time       -       -      -               -         -     - Deployment
+
+
+
+Speed - becoz of in memory processing.
+
+Caching - 
+
+Deploy - it can be deploy in various platforms.
+
+Analytics - it supports ML L sparksql and graphics.
+
+
+
+
+
+Overview of Spark Architecture:-
+--------------------------------------------
+                                                                                 Worker Node
+DriverNode                                                                 ----------------
+-------------------                                                              |--Executors
+spark Context| ----->Cluster Manager---------------------------|-----------------
+-------------------                                                              |----Executors
+                                                                                 -------------------
+
+• This architecture is based on two main abstractions RDD, DAG.
+
+
+Spark Ecosystem -
+
+Spark Core, Spark Streaming, Spark SQL, Spark MLib, Spark GraphX, SparkR.
+           |
+ allows to perform 
+batch processing.
+
+spark core:- responsible for i/o, scheduling and monitoring.
+
+
+RDD :- 
+
+Anything that we do in spark is around RDD. we reading the data in spark then it is read into RDD again when your transforming the data then we perform transformations on old RDD and creating a new one and last you will perform some action on data and store that dataset present in an RDD to a persistence storage.it is immutable distributed collection of object (string ,line, rows, collection ).
+
+RDD can be cached(for future work) and persisted.
+ 
+
+• Lost RDD be recomputed by original transformations - means it is  fault tolerant.
+• transformation produce new RDD and actions produce results.
+
+
+Spark Architecture - 
+
+
+                                                                                  Worker Node
+DriverNode                                                                 ----------------
+-------------------                                                              |--Executors
+spark Context| ----->Cluster Manager---------------------------|-----------------
+-------------------                                                              |----Executors
+                                                                                 -------------------
+
+
+• In Master Node we have our Driver Program which Drives the  application.so the code we write behave as driver program.or if we are using the interactive shell the shell acts as a Driver program
+• Driver program Drives the own application.
+• Driver program creates a JVM for the code that is being submitted by the client.
+• Inside the Driver Program the first thing we do is to create the SparkContext(sc). assume that SC is the gateway to all spark functionality.it is similar to database connection, so any thing you do in spark goes through spark context.
+• then this sc works with cluster manager to manage various jobs.
+• Driver Program and sc takes care of executing the job across the cluster.A job is related to the tasks and these tasks are distributed over the worker node.
+• Cluster manager schedules the spark Application.
+• Cluster Manager allocates the resources to the Driver program to run the tasks.
+• Worker nodes are the slave nodes whose job is basically to execute the task, the tasks is then executed on partition RDD in the worker node then return the result back to the spark context. 
+• sc takes the job breaks the job into tasks and distribute them on worker nodes. and these nodes works on partititon RDD's, Perform whatever operation you wanted to perform and then collect the result and give it back to main sc.
+• If we increase the no. of workers then you can divide jobs in more partitions and execute them paralelly over multiple systems.
+• Worker node consists of Executors and tasks.
+• Worker node executes the tasks assigned by the cluster manager.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

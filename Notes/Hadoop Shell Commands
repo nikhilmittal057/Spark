@@ -1,0 +1,125 @@
+HADOOP SHELL Commands
+
+
+Hadoop Shell Commands:--
+
+1. hadoop fs -mkdir -p  /user/hadoop/Training
+
+2. hadoop fs -put employee.txt /user/hadoop/Training/employee1.txt
+
+    hadoop fs -ls /user/hadoop/Training
+    Found 1 items
+-rw-r--r--   1 cloudera supergroup         41 2018-04-13 20:22 /user/hadoop/Training/employee1.txt
+
+3.hadoop fs -cat /user/hadoop/Training/employee1.txt
+hadoop fs -cat hdfs://quickstart.cloudera:8020/user/hive/warehouse/babardb.db/airports_bucket/000000_1-->to check data inside bucket
+
+
+4.hadoop fs -get /user/hadoop/Training/employee1.txt employee2.txt
+
+5.hadoop fs -cat /user/hadoop/Training/employee1.txt
+
+6.hadoop fs -cp /user/data/sample.txt /user/hadoop/Training
+
+[cloudera@quickstart Desktop]$ hadoop fs -ls /user/hadoop/Training
+Found 2 items
+-rw-r--r--   1 cloudera supergroup         41 2018-04-13 20:22 /user/hadoop/Training/employee1.txt
+-rw-r--r--   1 cloudera supergroup         41 2018-04-13 22:48 /user/hadoop/Training/sample.txt
+
+
+12. test: This command is used to test an HDFS file’s existence of zero length of the file or whether if it is a directory or not.
+
+options:
+–d 	used to check whether if it is a directory or not, returns 0 if it is a directory
+–e  	used to check whether they exist or not, returns 0 if the exists
+–f  	used to check whether there is a file or not, returns 0 if the file exists
+–s 	used to check whether the file size is greater than 0 bytes or not, returns 0 if the size is greater than 0 bytes
+–z 	used to check whether the file size is zero bytes or not. If the file size is zero bytes, then returns 0 or else returns 1.
+
+Example:
+1
+	
+$ hadoop fs -test -[defsz] /user/test/test.txt
+
+
+
+13. expunge:This command is used to empty the trash in hadoop file system.
+   $ hadoop fs -expunge
+
+
+14. appendToFile:Appends the contents of all the given local files to the given destination file on HDFS. The destination file will be created if it does not exist. 
+$ hadoop fs -appendToFile nikhil.txt employee.txt employee2.txt /user/hadoop/append.txt
+
+15. tail:Shows the last 1KB of the file.
+hadoop fs -tail hdfs://quickstart.cloudera:8020/user/hive/warehouse/babardb.db/airports/airports.csv
+     
+
+16. stat: 
+  1)hadoop fs -stat %y, %Y hdfs://quickstart.cloudera:8020/user/hive/warehouse/babardb.db/airports_bucket
+  2)hadoop fs -stat %n hdfs://quickstart.cloudera:8020/user/hive/warehouse/babardb.db/airports_bucket
+  3)hadoop fs -stat %r hdfs://quickstart.cloudera:8020/user/hive/warehouse/babardb.db/airports_bucket
+  4)hadoop fs -stat %b hdfs://quickstart.cloudera:8020/user/hive/warehouse/babardb.db/airports_bucket
+
+
+17. setfattr: ye command hi kyun use hoti hai samjh nhi aya.
+------------------------------------------------------------------------------------------------
+18. df: Shows the capacity, free and used space of the filesystem. If the filesystem has
+multiple partitions, and no path to a particular partition is specified, then
+the status of the root partitions will be shown.
+
+[cloudera@quickstart Desktop]$ hadoop fs -df -h  /user/hadoop
+Filesystem                         Size   Used  Available  Use%
+hdfs://quickstart.cloudera:8020  54.5 G  1.5 G     41.0 G    3%
+
+kaise pta karte h kitne partition hain filesystem k aur unka path and what is the meaning of filesystem.
+------------------------------------------------------------------------------------------------------------
+
+19. du:
+Show the amount of space, in bytes, used by the files that match the specified
+file pattern.
+
+Syntax:
+$ hadoop fs -du [-s] [-h] <path>
+ 
+The following flags are optional:
+
+-s Rather than showing the size of each individual file that matches the  pattern, shows the total (summary) size. 
+-h Formats the sizes of files in a human-readable fashion rather than a number
+of bytes.
+
+Note that, even without the -s option, this only shows size summaries one level
+deep into a directory.
+
+[cloudera@quickstart Desktop]$ hadoop fs -du  /user/hadoop
+164  164  /user/hadoop/append.txt
+0    0    /user/hadoop/nikhil.txt
+41   41   /user/hadoop/sample.txt
+41   41   /user/hadoop/test.txt
+
+[cloudera@quickstart Desktop]$ hadoop fs -du -s  /user/hadoop
+246  246  /user/hadoop
+[cloudera@quickstart Desktop]$ hadoop fs -du -h  /user/hadoop
+164  164  /user/hadoop/append.txt
+0    0    /user/hadoop/nikhil.txt
+41   41   /user/hadoop/sample.txt
+41   41   /user/hadoop/test.txt
+[cloudera@quickstart Desktop]$ hadoop fs -du -h  /user/hadoop/append.txt
+164  164  /user/hadoop/append.txt
+
+20. count:
+Count the number of directories, files and bytes under the paths
+that match the specified file pattern.
+[cloudera@quickstart Desktop]$ hadoop fs -count -h  /user
+
+  DIR_COUNT FILE_COUNT CONTENT_SIZE PATHNAME
+  35          930              1.4 G /user
+
+
+21. chgrp:This command is used to change the group of a file or a path.
+
+Syntax:
+$ hadoop fs -chgrp [-R] groupname
+
+
+22. chmod:
+23. chown: Changes owner and group of a file

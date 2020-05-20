@@ -1,0 +1,81 @@
+Transformation and Action functions :-
+
+Transformations:-
+-------------------------
+• Map does is apply a function to an entire already RDD.
+• In flatmap you can look at an individual line.
+• filter - self explanatory
+• Distinct  returns distinct rows , if you have duplicate rows
+• sample create an random sample from an RDD, use for testing lot of times.
+• Unions, intersection, subtract, cartesian between any two RDD's and produce a resulting RDD from these operations.
+• reduceByKey() :- combine values with the same Key using some function. eg:- rdd.reduceByKey((x,y) => x+y) adds them up.
+• sortByKey(): - sort RDD by key values
+• groupByKey(): - Group values with the same Key.
+      eg:- suppose when you dont want any aggregation and just want to collect together all of the values for a given Key then groupByKey will return RDD of key value where you would use each unique Key and the values  would be a list of all the values associated with that Key.
+
+
+Actions:-
+-------------
+
+Collect - It just collects all of the data in RDD and passes it back to your driver scripts.
+
+Count - use to get a count of  how many rows in your RDD.
+
+countByValue - it look at unique values in your RDD and give you back count of how many times each value appears.
+
+take - take will just take the first 10 results from an RDD. for debugging purpose or to make sure the format looks right and printed out.
+
+top - 
+
+reduce - it is the  more common thing to do with RDD and this actually lets you combine together all the different values associated with a given Key. imagine you have key value pairs in your RDD and you want to reduce all the values for a given Key, maybe you want to add them all  or multiply them together.
+
+
+Keys(), values() - create an RDD of just Keys, or just the values.
+
+mapValues and flatMapValues:- when you going to be mapping (operating on) the values in a key value RDD and leaving the Keys alone, then mapValues and flatMapValues is more efficient instead of just map and flatmap, Inshort, when you do any transformation on values basis in key value RDD and it  doesn't affect your key then go for it.
+eg,(33,385) transformed----> (33,(385,1)
+
+
+Program 1 - count the no. of  ratings of a movie.
+
+package com.scala.core
+import org.apache.spark._
+
+object RDD extends App{
+
+  val sc = new SparkContext("local", "RatingCounter")
+  val lines = sc.textFile("/home/nikhil/Desktop/Ratings")
+  val rating = lines.map(x => x.toString().split("\t")(2))
+  val results = rating.countByValue()
+  val sortedResults = results.toSeq.sortBy(_._1)
+  sortedResults.foreach(println)
+
+
+Program 2 - Average no of friends for a given age.
+
+FRIENDS BY AGE EXAMPLE:- ID, name, age, number of friends
+
+0,Will,33,385
+1,Jean-Luc,33,2
+2,Hugh,55,221
+3,Deanna,40,465
+4,Quark,68,21
+
+def parseLine(line: val) = {
+val fields = line.split(",")
+val age = fields(2).toInt
+val numFriends = fields(3).toInt
+(age, numFriends)
+}
+
+val lines = sc.textFile("")
+val rdd = lines.map(parseLine)
+
+ val totalsByAge = rdd.mapValues(x =>(x,1)).reduceByKey((x,y) =>(x._1+y._1,x._2+y._2))
+
+averagesByAge = totalsByAge.mapValues(x=>x._1/x._2)
+val results = averagesByAge.collect()
+results.sorted.foreach(println)
+
+
+

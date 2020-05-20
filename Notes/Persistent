@@ -1,0 +1,49 @@
+PERSISTENT
+-----------------------------
+
+01. what kind of transformations you have done in your project?
+Ans - Narrow transformation - map , flatmap, mapValues, mappartition, mapPartitionsWithIndex, filter, sample.
+Wide transformation - Intersection, Distinct, ReduceByKey, groupByKey, join, cartesian, repartition, coalesce, cogroup, groupWith, join, leftOuterJoin, rightOuterJoin, combineByKey, distinct, intersection, repartition, coalesce.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+02. what is the difference between transformation and action?
+Ans - Spark rdd functions are transformations and actions both. Transformation is function that changes rdd data and Action is a function that doesn't change the data but gives an output.
+For example :
+map, filter, union etc are all transformation as they help in changing the existing data. reduce, collect, count are all action as they give output and not change data.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+03. what is the difference between RDD, Dataframe and datasets?
+-----------------------------------------------------------------------------------------------------------
+04. spark architecture? Name of main components and their functionality?
+Ans -  Components :- Spark Core, Spark SQL, Spark Streaming, Spark MLlib, Spark GraphX, and SparkR.
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+05. what is the cluster manager? - Yarn, Mesos, Kubernetes
+Ans - cluster manager is responsible for the scheduling and allocation of resources across the cluster.
+Cluster manager is a platform (cluster mode) where we can run Spark.
+-----------------------------------------------------------------------------------------------------------------------------------------------
+06. Type of cluster managers available in Spark?
+Ans- Apache Spark supports these three type of cluster manager, Standalone cluster manager, Hadoop YARN and Apache Mesos.
+The main task of cluster manager is to provide resources to all applications.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+07. what are the other components that you have used in your project?
+08. Spark API other than RDD and DF you have used?
+09. Have you ever used Spark SQL?
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+10. I have file in HDFS and i want to perform word count on that so how will you perform step by step explain?
+11. Explain how each function works in word count?
+12. Word count program on .csv format?
+13. how will you search a string In DF  any name like eg. "Nikhil" and count that particular string coming how many times in that file?
+14. How will you load a text file as RDD?
+15. In DF how will you show all the columns?
+16. how will perform on DF that you have a file having Empid, Empname, Empdept, city, salary. Display complete record of the employees having salary more than 50k?
+----------------------------------------------------------------------------------------------------------------------------------------
+17. what is accumulator in apache spark? https://www.edureka.co/blog/spark-accumulators-explained
+Accumulators are variables that are used for aggregating information across the executors. for example :- like how many records are corrupted.
+
+
+       
+
+out of Memory Exceptions:- Error:Java.lang.outof memory
+
+a) Driver Memory Exception:- This occurs when the spark driver runs out of memory --> --conf spark.driver.memory = <xy>g
+b) Executor Memory Exception :- --conf spark.executor.memory = <xy>g
+      Also increase the shuffle partition as --> --spark.sql.shuffle.partitions = <xy>
+Deploy mode Distinguishes where the driver process runs. In "cluster" mode, the framework launches the driver inside of the cluster. In "client" mode, the submitter launches the driver outside of the cluster.

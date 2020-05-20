@@ -1,0 +1,43 @@
+Hbase
+
+COMMAND GROUPS:
+--------------------------------
+
+A)  Group name: general
+Commands: 
+
+1.processlist-- 
+0 tasks as of: 2019-06-28 04:28:48
+No general tasks currently running.
+
+2.status-- 1 active master, 0 backup masters, 1 servers, 0 dead, 3.0000 average load
+3.table_help-- 
+4.version--
+5.whoami--
+
+
+B)Group name: namespace
+  Commands:
+ 
+1.alter_namespace
+2.create_namespace --> create_namespace 'hadoop', {'owner'=> 'nikhil', 'date'=> '28th June 2019', 'location'=> 'Bangalore'}
+3.describe_namespace
+4.drop_namespace
+5.list_namespace --> 
+NAMESPACE                                                                                                                                             
+default                                                                                                                                               
+hbase  
+
+6.list_namespace_tables : hbase> list_namespace_tables 'default'.
+
+7. locate_region:-
+
+
+
+
+
+
+
+
+
+

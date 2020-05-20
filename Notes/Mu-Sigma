@@ -1,0 +1,216 @@
+Mu-Sigma 
+
+https://www.sqltutorial.org/sql-self-join/
+set hive.cli.print.header=true;
+
+EMPLOYEE TABLE:- 
+---------------------------
+1.hive> create table Employee(employeeNumber  int, LastNAME varchar(20), FirstName varchar(20), officeCode int, reportsTo int, jobTitle char(20), PRIMARY KEY(employeeNUMBER) disable novalidate) row format delimited fields terminated by ',';
+2.hive> load data local inpath '/home/nikhil/Desktop/Employee.txt' into table employee;
+
+
+1. CREATE TABLE Employee(employeeNumber  int  NOT NULL, LastNAME varchar(20), FirstName varchar(20), officeCode int, reportsTo int, jobTitle char(20), PRIMARY KEY(employeeNUMBER));
+
+2. explain Employee;
+
+3. show create table Employee;
+
+4.ALTER TABLE Employee MODIFY COLUMN jobTitlevarchar(30);
+
+5. INSERT INTO Employee (employeeNumber, LastName, FirstName, officeCode, reportsTo, jobTitle) VALUES (1056, 'Patterson', 'Mary', 1, 1002, 'VP Sales');
+
+6.LOAD DATA LOCAL INFILE '/home/nikhil/Desktop/Employee.txt' INTO TABLE Employee COLUMNS TERMINATED BY ',';
+7. Delete from Employee- To delete all the rows not schema.
+
+
+OFFICE TABLE:-	
+--------------------
+
+1.hive> create table Office (officeCode int, city varchar(20), state varchar(20), country varchar(20), territory varchar(20)) row format delimited fields terminated by ',';
+2. hive> load data local inpath '/home/nikhil/Desktop/office.txt' into table Office;
+
+
+1.create table Office (officeCode int AUTO_INCREMENT, city varchar(20) NOT NULL, state varchar(20), country varchar(20), territory varchar(20) primary key(officeCode));
+
+2. Insert into Office (officeCode, city, state, country, territory) values (1, 'San Francisco', 'CA', 'USA', 'NA');
+3. Load data local Infile '/home/nikhil/Desktop/office.txt' into table Office columns terminated by ',' (city, state, country, territory);
+
+ORDER TABLE:- https://bigdataprogrammers.com/string-date-conversion-hive/
+---------------------
+1.hive> CREATE TABLE  Orders (orderNumber int, orderdate DATE, requireddate DATE, shippeddate DATE, status varchar(20)) row format delimited fields terminated by ',';
+2.hive> load data local inpath '/home/nikhil/Desktop/Datasets/Orders.txt' into table Orders;
+
+hive> create table tmp(a string, b string) row format delimited fields terminated by ',';
+hive> load data local inpath 'a.txt' overwrite into table tmp;
+hive> create table mytime(a string, b timestamp);
+hive> insert into table mytime select a, from_unixtime(unix_timestamp(b, 'dd-MM-yyyy HH:mm')) from tmp;
+hive> select * from mytime;
+a 2015-11-20 22:07:00
+b 2015-08-17 09:45:00
+
+
+1.CREATE TABLE  tmp(orderNumber int, orderdate string, requireddate string, shippeddate string, status varchar(20)) row format delimited fields terminated by ',';
+2.load data local inpath '/home/nikhil/Desktop/Datasets/Orders.txt' overwrite into table tmp;
+3.CREATE TABLE  Orders(orderNumber int, orderdate DATE, requireddate DATE, shippeddate DATE, status varchar(20));
+4.insert into table Orders select orderNumber,  cast(to_date(from_unixtime(unix_timestamp(orderdate, 'yyyy/MM/dd'))) as date), cast(to_date(from_unixtime(unix_timestamp(requireddate, 'yyyy/MM/dd'))) as date), cast(to_date(from_unixtime(unix_timestamp(shippeddate, 'yyyy/MM/dd'))) as date), status from tmp;
+
+
+
+
+1. CREATE TABLE  Orders (orderNumber int, orderdate DATE, requireddate DATE, shippeddate DATE, status varchar(20));
+
+2. load data local INFILE '/home/nikhil/Desktop/Orders.txt' into table Orders column terminated by ',';
+
+3. SELECT ordernumber, DATE_FORMAT(orderdate, "%m/%d/%Y") as orderdate, DATE_FORMAT(requireddate, "%m/%d/%Y") as requireddate, DATE_FORMAT(shippeddate, "%m/%d/%Y") as shippeddate, status from Orders;
+
+    
+PRODUCTS TABLE:
+-----------------------------
+   CREATE TABLE Products (productCode varchar(20), productName varchar(40)) row format delimited fields terminated by ',';
+    load data local inpath '/home/nikhil/Desktop/Datasets/Products.txt' into table Products;
+
+1. CREATE TABLE Products (productCode varchar(20), productName varchar(40));
+2. load data local INFILE '/home/nikhil/Desktop/Products.txt' into table Products columns terminated by '/t';
+
+OrderDetails Table:-
+----------------------------------
+CREATE TABLE OrderDetails (orderNumber int, productCode varchar(20), unitOrdered int, pricePerUnit double) row format delimited fields terminated by ',';
+load data local inpath '/home/nikhil/Desktop/Datasets/Orders.txt' into table OrderDetails;
+
+CREATE TABLE OrderDetails (orderNumber int, productCode varchar(20), unitOrdered int, pricePerUnit double);
+
+Customer TABLE:-
+-----------------------------
+ CREATE TABLE Customer (customerNumber int, customerName varchar(35), city varchar(20), country varchar(20)) row format delimited fields terminated by ',';
+ load data local inpath '/home/nikhil/Desktop/Datasets/Customer.txt' into table Customer;
+
+CREATE TABLE Customer (customerNumber int, customerName varchar(35), city varchar(20), country varchar(20));
+
+UNIX LOCATION :- Folder-1: /home/training/
+                           Folder-2: /home/training2/
+
+HDFS LOCATION:- Folder-1: /user/training
+                           Folder-2: /user/training2/
+
+
+1. copy Orders.txt from folder1 to folder2.
+Ans- cp Desktop/folder1/Orders.txt Desktop/folder2/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2.Give read, write, execute permission to everyone for Employee.txt present in folder1.
+Ans- chmod 777 Desktop/folder1/Employee.txt
+Each write, read, and execute permissions have the following number value:
+
+    r (read) = 4
+    w (write) = 2
+    x (execute) = 1
+    no permissions = 0
+
+To find out the file’s permissions in numeric mode simply calculate the totals for all users classes. For example, to give read, write and execute permission to the file’s owner, read and execute permissions to the file’s group and only read permissions to all other users you would do the following:
+
+    Owner: rwx=4+2+1=7
+    Group: r-x=4+0+1=5
+    Others: r-x=4+0+0=4
+
+Using the method above we come up to the number 754, which represents the desired permissions.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3.Rename Orders.txt to Orders_new.txt in folder-2.
+ans - mv Desktop/folder2/Orders.txt Desktop/folder2/Orders_new.txt	
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. List all the files present in folder?
+ans-  ls -a Desktop/folder1
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+5 create folder "Orders" in folder-2 and copy Orders.txt and OrderDetails.txt from folder-1 to "Orders" in folder-2
+ans- mkdir Desktop/folder2/Orders and cp 
+--------------------------------------------------------------------------------------	---------------------------------------------------------------------------------------
+6.copy all files of folder1 to folder2.
+Ans - cp  /home/nikhil/Desktop/folder1/*.*  /home/nikhil/Desktop/folder2/
+OR cp  /home/nikhil/Desktop/folder1/* /home/nikhil/Desktop/folder2 (This excludes the directory by default, and the “-r” option must be included in this command to copy them)
+--------------------------------------------------------------------------------------------------------------------
+7. write a command to display first 5 records of Order.txt in folder3.
+Ans - head -5 Desktop/folder3/Orders.txt
+-------------------------------------------------------------------------------------------------------------------------------
+8.create Products table and load data from folder3.Note Dropping the table should not delete the product file from folder3?
+
+ans - CREATE EXTERNAL TABLE Products (productCode varchar(20), productName varchar(40)) row format delimited fields terminated by ',';
+        load data local inpath '/home/nikhil/Desktop/Datasets/Products.txt' into table Products;
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+9. create table  Employee_sales_Manager [in ORC FORMAT] from employee table.Also check if the Employee
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+10.Display office details for city "London".The city name should not be hard coded in the query instead should be declared as variable and referenced in query.
+Ans 1 - set myvar=London;
+           select * from office where city='${hiveconf:myvar}';
+                                    OR
+       2. set hivevar:myvar="London";
+           select * from office where city='${myvar}';
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+11. A hive script my_script.sql is present in folder-1.write a command to trigger my_script.sql from shell[$] prompt.You should also pass "London" as a parameter to file while       triggering.
+
+Ans- 1.hive -f "Desktop/folder1/myscript.hql"  OR  
+       2.hive -e "select * from musigma.office;" OR 
+       3.hive -hivevar myvar='London' -f "Desktop/folder1/myscript.hql" (from linux shell by passing parameter) OR 
+       4.hive -hivevar myvar='London' -f "hdfs://myubuntu:9000/folder1/myscript.sql" 
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+12. 
+13. List all unique jobTitles available.
+Ans - select DISTINCT jobtitle from employee;
+----------------------------------------------------------------------------------------------------------------------------------------------
+14.List how many employees are present in each jobTitle.
+Ans - select jobtitle, count(*) as count  from employee GROUP BY jobtitle;
+-------------------------------------------------------------------------------------------------------------------------------------------
+15. List how many employees are present in each country.
+Ans - select o.country, count(*) as count from employee e JOIN office o ON (e.officecode = o.officecode) GROUP BY o.country;
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+16.List customer name and customer number who have ordered more than 40 units of products.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+17.List employee full name, employee job title along with manager name and manager job title.
+Ans - select concat(Empl.firstname,' ',Empl.lastname) as Employee_name, Empl.jobtitle as title, concat(Manager.firstname,' ',Manager.lastname) as Manager_Name, Manager.jobtitle as Manager_Title from employee Empl LEFT JOIN employee Manager ON Empl.reportsto = Manager.employeenumber;
+--------------------------------------------------------------------------------------------------------------------------------------------------
+18.List the orders which were delivered later than required date.
+-----------------------------------------------------------------------------------------------------------------------------
+19.what is the total sales amount for 2004 April.
+Ans - select DATE_FORMAT(concat_ws('-', cast(year(a.orderdate) as string), cast(month(a.orderdate) as string), ("01")), 'yyyy-MMMMM'), SUM(b.unitordered * b.priceperunit) as total from (SELECT ordernumber,orderdate FROM orders WHERE month(orderdate)=4 AND year(orderdate)=2004) a join (select * from orderdetails) b ON (a.ordernumber=b.ordernumber) GROUP BY year(a.orderdate), month(a.orderdate);
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+20.List territory wise ordered Units.
+----------------------------------------------------------------------------------------------------------------------------------------
+21.List all the customers whose name starts 's' or 'S' and ends with 'n' or 'N'.
+Ans - select * from customer where UPPER(customername) Like 'S%N';
+-------------------------------------------------------------------------------------------------------------
+22.List the order numbers which were shipped within 3 days of order.
+Ans - SELECT ordernumber from orders where datediff(cast(to_date(from_unixtime(unix_timestamp(shippeddate, 'yyyy/MM/dd'))) as string), cast(to_date(from_unixtime(unix_timestamp(orderdate, 'yyyy/MM/dd'))) as string)) <=3;
+
+OR
+
+SELECT ordernumber from orders where datediff(cast(to_date(from_unixtime(unix_timestamp(shippeddate))) as string), cast(to_date(from_unixtime(unix_timestamp(orderdate))) as string)) <=3;
+
+O/P - ordernumber
+10219
+10243
+10303
+
+
+SELECT ordernumber, datediff(cast(to_date(from_unixtime(unix_timestamp(shippeddate, 'yyyy/MM/dd'))) as string), cast(to_date(from_unixtime(unix_timestamp(orderdate, 'yyyy/MM/dd'))) as string)) as days from orders where datediff(cast(to_date(from_unixtime(unix_timestamp(shippeddate, 'yyyy/MM/dd'))) as string), cast(to_date(from_unixtime(unix_timestamp(orderdate, 'yyyy/MM/dd'))) as string)) <=3;
+
+O/P 
+ordernumber	days
+10219	        2
+10243	        2
+10303	        3
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+23.List how many orders were ordered in 2004 quarter 1.
+Ans -  SELECT count(*) FROM orders WHERE orderdate BETWEEN '2004-01-01' AND '2004-03-31';
+
+select SUM(total) from (select month(orderdate), count(*) as total from orders GROUP BY month(orderdate)) a;
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+

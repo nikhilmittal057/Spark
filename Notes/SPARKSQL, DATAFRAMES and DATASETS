@@ -1,0 +1,396 @@
+SPARKSQL, DATAFRAMES and DATASETS
+
+mysql -u root -p root
+
+
+Spark SQL:- It is a Spark Module for structured data processing,One of the cool features of the Spark SQL module is to execute SQL queries to perform data processing and the result of the queries will be returned as a Dataset or DataFrame.
+
+DataFrame = Dataset[Row] - Untyped
+Dataset = Dataset[T]
+
+Creating DataFrames from RDDs
+
+val rdd = sc.parallelize(1 to 10).map(x => (x, x * x))
+val dataframe = spark.createDataFrame(rdd).toDF("key", "sqaure")
+dataframe.show()
+
+
+
+Creating Datasets:-
+
+There are a few ways to create a Dataset:
+
+    The first way is to transform a DataFrame to a Dataset using the as(Symbol) function of the DataFrame class.
+    The second way is to use the SparkSession.createDataset() function to create a Dataset from a local collection of objects.
+    The third way is to use the toDS implicit conversion utility.
+
+Malli Video1 sparksql :-
+
+----------------------------------------------------------------------------------------------------------------
+val projDF = spark.sql("select stock, volume from stocks") - projDF is Dataframe
+
+direct SQL operations are not allowed on DataFrames, first you have to create the table view explicitly for that DF. so there are 4 ways to do that:-
+
+1) createOrReplaceGlobalTempView.  eg:-- - -f---projDF.createOrReplaceGlobalTempView("projstocks")
+
+• spark.catalog.listTables("global_temp").show
+• spark.sql("select * from global_temp.projstocks limit 2").show
+--------------------------------------------------------------------------------------------------------
+
+•  spark.sql("create database india")
+• spark.catalog.listDatabases.show
+
+• spark.sql("create table india.people(name string, age int,place string) row format delimited fields terminated by '\t'")
+• spark.catalog.listTables("india").show
+• spark.sql("create external table india.ext_people(name string, age int,place string)comment ' this is people info' row format delimited fields terminated by '\t' location 'file:///home/nikhil/bigdata/jobs/spark'")
+• spark.sql("select * from india.people where name = 'Nikhil'").write.saveAsTable(india.pune) - to save the o/p in a table.
+
+
+video 4
+DATAFRAMES:-
+
+- Dataframe is a dataset with named column.
+- The idea behind DataFrame is it allows processing of a large amount of structured data. DataFrame contains rows with Schema. 
+
+• tungsten project - a. Custom Memory Management: This is also known as Project Tungsten. A lot of memory is saved as the data is stored in off-heap memory in binary format.
+• query optimizer - b. Optimized Execution plan: This is also known as the query optimizer. Using this, an optimized execution plan is created for the execution of a query. Once the optimized plan is created final execution takes place on RDDs of Spark.
+• catalyst optimizer
+• checkpoint
+
+DataFrame creation :-
+
+1.using collection (Sequence) :-  val peopleDF = Seq(("hari", "mysore", 30), ("ravi", "pune", 40), ("siva", "mumbai", 33)).toDF("name", "place", "age")
+                         peopleDF.printSchema
+                         peopleDF.show
+
+2.using RDD (Reflection) A):-    val peopleRDD = sc.parallelize(Array(("hari", "mysore", 30), ("ravi", "pune", 40), ("siva", "mumbai", 33)))
+                            val peopleDF= peopleRDD.toDF("name", "place", "age") (Reflection)
+                                  peopleDF.show
+
+
+-  we can use reflection only when we create DF  from RDD of SEQ or ARRAY etc
+
+B) explicitly By providing the schema programmatically :-
+                                                     
+1.                                                import org.apache.spark.sql.types._
+                                                    import org.apache.spark.sql.Row
+                                                   val spark = SparkSession.builder().appName("Spark").config("spark.some.config.option", "some-value").getOrCreate()
+                                                   val peopleRDD = sc.parallelize(Array(Row("hari", "mysore", 30), Row("ravi", "pune", 40), Row("siva", "mumbai", 33)))
+                                                    val schema = StructType(List(StructField("name", StringType, false), StructField("place", StringType, true), StructField("age", IntegerType, true)))
+                                                    val peopleDF = spark.createDataFrame(peopleRDD, schema)
+                                                     peopleDF.printSchema
+
+2.package com.scala.core
+import org.apache.spark._
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Row, SparkSession}
+
+object Spark_DF extends App {
+
+  val sc = new SparkContext("local[*]","sparkcontext")
+  val stockRDD = sc.textFile("file:///home/nikhil/bigdata/jobs/stocks")
+  val Header = "market, stock, sdate, open, high, low, close, volume, adj_close"
+  val schema= StructType(Header.split(",").map(fieldName => StructField(fieldName, StringType, true)))
+  val rowRDD = stockRDD.map(_.split("\t")).map(x => Row(x(0), x(1), x(2), x(3), x(4), x(5) , x(6) , x(7) , x(8)))
+  val spark = SparkSession.builder().appName("hirw-test").config("spark.some.config.option", "some-value").getOrCreate()
+  val stockDF = spark.createDataFrame(rowRDD, schema)
+  stockDF.show()
+
+
+
+val schema= StructType(List(StructField("market", StringType, false), 
+                                           StructField("stock",StringType, true), 
+                                           StructField("sdate", DateType, true), 
+                                           StructField("open", DoubleType, true),
+                                           StructField("high", DoubleType, false), 
+					   StructField("low", DoubleType, true),
+				           StructField("close", DoubleType, true), 
+                                           StructField("volume", DoubleType, true),
+                                           StructField("adj_close",DoubleType, true))
+
+val stockDF = spark.createDataFrame(stockRDD, schema)
+
+3. using Hive tables :-   
+                                    val stocksDF = spark.sql("select * from stocks")
+                                         stocksDF.printSchema
+
+4. using Json file :- val jsonDF = spark.read.json("hdfs://master:9000/sql/people.json")
+                             jsonDF.printSchema
+                             jsonDF.show
+
+5. using CSV file:-    val csvDF = spark.read.option("header", true).csv("/home/nikhil/people.csv")
+
+6.Using orc file :- val orcDF = spark.read.orc("/home/nikhil/bigdata/jobs/people.orc")
+
+How to create parquet file from Dataframe:- csvDF.select("name").write.parquet("/home/nikhil/people.parquet")
+
+parDF.write.orc("/home/nikhil/bigdata/jobs/people.orc")--> create orc file from DF)
+
+6. using Parquet File :-    val parDF = spark.read.parquet("/home/nikhil/people.parquet")
+
+ creating DF by performing transformation on another DF :-  val projDF = csvDF.select("name")
+
+
+
+DATAFRAME OPERATIONS :-
+-----------------------------------------
+
+1. stocksDF.show(200)
+2. stockDF.filter(stockDF("stock")=== "CA").show OR  stockDF.filter($"stock" === "CA").show
+    stockDF.filter(stockDF("stock")=== "CA").filter(stockDF("volume") > 100000).select("stock", "volume").show 
+    
+3. stockDF,drop("market", "sdate").show
+4.stockDF.agg(sum("volume")).show OR stockDF.agg(min("volume")).show OR  stockDF.agg(max("volume")).show
+
+5. val stocksDF = stockDF.alias("stocks")
+6. val projDF = stockDF.select("stock", "volume").limit(20)
+     projDF.sort("volume").show
+7. stockDF.describe("volume").show - it will give the statistics of particular    column 
+8.  stockDF.select("stock").distinct().foreach(row => println(row.getString(0))
+9. stockDF.head it is same as stockDF.first
+10. stockDF.take(10) - it gives output in the form of Array.
+11.stockDF.schema
+res1: org.apache.spark.sql.types.StructType = StructType(StructField(market,StringType,true), StructField(stock,StringType,true), StructField(sdate,StringType,true), StructField(open,StringType,true), StructField(high,StringType,true), StructField(low,StringType,true), StructField(close,StringType,true), StructField(volume,StringType,true), StructField(adj_close,StringType,true))
+
+12.stockDF.printSchema
+root
+ |-- market: string (nullable = true)
+ |-- stock: string (nullable = true)
+ |-- sdate: string (nullable = true)
+ |-- open: string (nullable = true)
+ |-- high: string (nullable = true)
+ |-- low: string (nullable = true)
+ |-- close: string (nullable = true)
+ |-- volume: string (nullable = true)
+ |-- adj_close: string (nullable = true)
+
+13. stockDF.cache() and persist() both are same
+14.stockDF.storageLevel
+15.stockDF.unpersist
+16.stockDF.persist(StorageLevel.MEMORY_ONLY_SER_2)
+
+17.stockDF.groupBy("stock").agg(sum("voulme").show OR
+     stockDF.groupBy("stock").sum("voulme").show
+
+18.stockDF.groupByKey(row => row.getString(0)).Keys.show 
+     stockDF.groupByKey(row => row.getString(0)).count.show 
+
+19. val stockRDD = stockDF.rdd   then    stockRDD.first
+      stockRDD.map(row=> (row.getString(1), row.getLong(7))).first 
+      O/P - (String, String) = (CLI,890100)
+20. collect - stockDF.collect --> It moves data from  executor to driver.
+21. stockDF.hint("Stock DATA").show
+22. stockDF.map(row => row.getInt(5) * 1).show
+23. stockDF.stat - it will return you all stat functions.
+24. stockDF.isStreaming --> o/p Boolean = false (becoz stockDF is bounded(static dataset in MYSQL) DF not a unbounded DF(streaming dataset))
+25. stockDF.dtypes
+O/P - Array[(String, String)] = Array((market,StringType), (stock,StringType), (sdate,StringType), (open,StringType), (high,StringType), (low,StringType), (close,StringType), (volume,StringType), (adj_close,StringType))
+26. nikhilDF.inputFiles --> o/p - Array[String] = Array(file:///home/nikhil/bigdata/jobs/stocks)
+27.stockDF.columns --> o/p- Array[String] = Array(market, stock, sdate, open, high, low, close, volume, adj_close)
+28.stockDF.select("stock").dropDuplicates.show --> to suppress the duplicate values
+29.stockDF.col("stock")
+30.stockDF.count -> it counts number of rows
+31.stockDF.where("stock = 'CLI').show
+32.stockDF.where("stock = 'CJT' and sdate = '2009-12-31'").show
+33.stockDF.where("stock = 'CJT'and sdate = '2009-12-31'").explain(true)
+34.empDF.selectExpr("ename as name", "sal * 2").show
+35.stockDF.sparkSession
+36.stockDF.withColumnRenamed("stock", "stocks").show - to rename the    column
+37.stockDF.withColumn() - it used to add new column. 
+eg:- stockDF.withColumn("stocks", lit(0)) - added new stocks(column) and lit(0) is value of that column.
+38. creating UDF - val Lower = udf((name:String) => (name.toLowerCase))
+ eg:- stockDF.select(Lower('market)).show
+39.coalesce- stockDF.coalesce(1)
+40.repartition - stockDF.repartition(2)
+41.stockDF.toJSON.write.text("/home/nikhil/stock_json") - to convert DF to JSON and to read that json file  we used write.text so the data divided into text partitions and we can read the full data(means it will show all the coulmns).  
+O/P - nikhil@myubuntu:~/stock_json$ ls
+part-00000-d633104e-4c91-445e-b0d4-3fe1c6f28212-c000.txt
+part-00001-d633104e-4c91-445e-b0d4-3fe1c6f28212-c000.txt
+_SUCCESS
+
+42.stockDF.na.
+drop   fill   replace -- for missing data
+
+43.stockDF.sample(true, 0.0001).show - to see the sample of records.
+44.stockDF.cube("stock", "sdate") 
+    stockDF.cube("stock", "sdate").min("volume").coalesce(1).write.csv("/home/ nikhi/stock.csv")
+    stockDF.cube("stock", "sdate").min("volume").count
+
+45. val nyseDF = stockDF.randomSplit(Array(3.0, 4.0, 3.0))
+                nyseDF.length
+            for (df<- nyseDF){
+             println(df.count OR show)
+           }
+
+46. val nyseDF = stockDF.randomSplitAsList(Array(3.0, 4.0, 3.0), 1)
+47. stockDF.rollup("market", "stock").sum("voulme")
+
+val mgDF = stockDF.filter(stockDF("stock") === "CLI").show - it will create a DF having only "stock = CLI".
+48. stockDF.except(mgDF).show - it will show all the records of stockDF not having  "stock = CLI"
+49. stockDF.intersect(mgDF).show - it will show the records of stockDF those matches "stock = CLI".
+
+50.stockDF.queryExecution - it will show the plans of query(physical, logical etc)--> it is same as Explain operation.
+
+51. How to Convert DF to DS :-
+
+      val DF =  stockDF.select("market", "stock", volume)
+      
+      case class Stocks (market:String, stock:String, volume:String)
+      val stockDS = stockDF.as[Stocks]
+o/p- org.apache.spark.sql.Dataset[Stocks] = [market: string, stock: string ... 7 more fields]
+      StockDS.show
+      stockDS.toDF().show - again converting DS to DF
+
+52.spark.sparkContext.setCheckpointDir("home/nikhil/bigdata/jobs/checkpoint")
+     stockDF.checkpoint
+
+53. stockDF.apply("stock")
+
+54. val csrDF =  stockDF.filter(stockDF("stock") === "CSR")
+      val cjtDF =  stockDF.filter(stockDF("stock") === "CJT") 
+      val unDF = csrDF.union(cjtDF)
+      unDF.show
+
+55.71. join
+
+		namesDF.join(names1DF, "name").show
+		namesDF.join(names1DF, namesDF.col("name") ===     names1DF.col("name"), "left").show
+
+56. joinWith
+
+		namesDF.joinWith(names1DF, namesDF.col("name") === names1DF.col("name")).show
+
+57.	union
+
+		namesDF.union(names1DF).show
+
+
+Video 5:-
+
+How to create DF from a MYSQL table
+
+val jdbcDF = spark.read.jdbc("jdbc:mysql://localhost:3306/hadoop", "hadoop.emp", connPros) --> hadoop (DB) and emp(table)
+jdbcDF.printSchema
+jdbc.show
+
+NOTE:- connPros hold the ID passoword of MySql.
+
+• jdbcDF.write.saveAsTable("sales.emp") - used to write the DF into hive table
+
+
+• jdbcDF.write.csv("hdfs://master:9000/sql/sales_emp")  - to store sql table into HDFS
+
+
+• stockDF.write.jdbc("jdbc:mysql://localhost:3306/hadoop", "hadoop.stock", connPros) - to write DF to MYSQL.
+
+
+Video 6:- DATASET
+• Spark Dataset it is a distributed dataset
+• Dataset = DataFrame + RDD
+• From RDD Dataset borrowed strongly typing and lambda functions.
+• From Dataframe it borrows optimizations and ease of use.
+• Untyped view of Dataset is called DataFrame i.e, Dataset[Row].
+• Dataset and Dataframe has common operations, some of them are actions and transformations.
+• Dataset is lazy. 
+ 
+
+Creating Datasets using collection :-
+
+1. case class Person(name:String, age:Int, place:String)
+
+    val peopleDS:Dataset[Person] = Seq(Person("Naga", 30, "Bangalore"), Person("Nikhil", 27, "Gwalior")).toDS()
+    peopleDS.show
+    peopleDS.printSchema
+
+2.  val peopleDS = Seq("Naga", 30, "Bangalore").toDS()
+     peopleDS.show
+
+3. val persons = Seq("Naga", "Hari", "Siva")
+    val personDS = spark.createDataset(persons)
+    personDS.show
+
+Creating Datasets using RDD :-
+
+ case class Person(name:String, age:Int, place:String)
+
+     val peopleRDD = sc.textFile("/home/nikhil/people")
+     val projRDD = peopleRDD.map(_.split(",")).map(x =>    Person(x(0), x(1).toInt, x(2)))
+     val projDS = projRDD.toDS()
+     projDS.show
+
+
+Creating Datasets using Hive Tables:
+
+case class stock(market:String, stock:String, sdate:String, open:Double, high:Double, low:Double, close:Double, volume:Long, adj_close:Double)
+
+val stockDS = spark.sql("select * from stock").as[stock]
+
+stockDS.show
+
+
+
+
+
+
+Doubt:-
+
+what is the difference between caching and persistence?
+
+how to define case class in interview?
+
+      catalyst optimizer - rule based and cost based optimizer.
+• checkpoint
+
+- rollup and cube operation on DF?
+
+  stockDF.rollup("market", "stock").sum("voulme")
+
+44. stockDF.cube("stock", "sdate")?
+"volume" is not a numeric column. Aggregation function can only be applied on a numeric column.;
+
+
+- Diff between dataframe, datset and SPARKSQL?
+
+scala> stockDF.storageLevel
+res3: org.apache.spark.storage.StorageLevel = StorageLevel(1 replicas)
+
+scala> stockDF.cache()
+res4: stockDF.type = [market: string, stock: string ... 7 more fields]
+
+scala> stockDF.storageLevel
+res5: org.apache.spark.storage.StorageLevel = StorageLevel(disk, memory, deserialized, 1 replicas)
+
+- sparkContext, SQLContext, SparkSession.
+
+• where the dataframe gets store in our local system if we want to see that DF.
+
+ val stockRDD = sc.textFile("file:///home/nikhil/bigdata/jobs/stocks")
+val stockDF= stockRDD.toDF("market", "stock", "sdate", "open", "high", "low", "close", "volume", "adj_close")
+
+java.lang.IllegalArgumentException: requirement failed: The number of columns doesn't match.
+Old column names (1): value
+New column names (9): market, stock, sdate, open, high, low, close, volume, adj_close
+
+
+scala> peopleDF.printSchema
+root
+ |-- name: string (nullable = false)
+ |-- place: string (nullable = true)
+ |-- name: integer (nullable = true)
+
+
+• meaning of tuple?
+
+what is sqlcontext (is only for sparksql), sparksession(for dataframes datasets spark hive), hivecontext ( use to execute the sparksql queries on top hive from sparksql ).
+
+- shuffling m data over the network kahan se kahan transfer hota h?
+
+• A Dataset has helpers called encoders, which are smart and efficient encoding utilities that convert data inside each user-defined object into a compact binary format. This translates into a reduction of memory usage if and when a Dataset is cached in memory as well as a reduction in the number of bytes that Spark needs to transfer over a network during the shuffling process.
+
+val sc = new SparkContext("local[*]","sparkcontext")
+val stockRDD = sc.textFile("file:///home/nikhil/bigdata/jobs/stocks")
+val schema= StructType(List(StructField("market", StringType, false), StructField("stock",StringType, true), StructField("sdate", DateType, false),  StructField("open", DoubleType, true), StructField("high", DoubleType, false), StructField("low", DoubleType, true), StructField("close", DoubleType, true), StructField("volume", DoubleType, true), StructField("adj_close",DoubleType, true)))
+val rowRDD = stockRDD.map(_.split("\t")).map(x => Row(x(0), x(1), x(2), x(3), x(4), x(5) , x(6) , x(7) , x(8)))
+val spark = SparkSession.builder().appName("hirw-test").config("spark.some.config.option", "some-value").getOrCreate()
+val stockDF = spark.createDataFrame(rowRDD, schema)
+stockDF.show

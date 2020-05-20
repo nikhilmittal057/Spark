@@ -1,0 +1,192 @@
+SQL
+
+sql
+======
+
+1.what is sql  -> SQL is a language to communicate with the relational database.
+
+2.what is RDBMS:- you can specify relation between two tables at the time of creation.
+informix, oracle,sybase,DB2.
+
+3. 5 subdivision of sql:-
+
+a) DDL:- create, drop, alter
+b) DML:- insert, update, delete
+c) DCL:- grant, Revoke
+d) DQL:- select
+e) DTL:- commit, Rollback, savepoint
+------------------------------------------------------------------------------------------------
+4:- Clauses:-
+
+SELECT column1, column2
+FROM table_name
+WHERE [ conditions ]
+GROUP BY column1, column2
+HAVING column1
+ORDER BY column1, column2;
+
+
+a) WHERE:- use as a filter or to restrict the rows.
+b) ORDER BY:- used to see the records in a specific order. it always last clause in select statement.
+c) GROUP BY:- use for grouping. whichever column is present in select statemenrt it must be present in GROUP BY clause.
+d) HAVING :- select deptno, sum(sal) from emp group by deptno. having sum(sal) > 17000;
+       
+
+---------------------------------------------------------------------------------------------------------
+5. Opertaors:-
+
+a)Arithmetic operators
+b)Comparison operators
+c)Logical operators
+d)Operators used to negate conditions
+-----------------------------------------------------------------------------
+6.Create table command:-
+
+SQL> CREATE TABLE CUSTOMERS(
+   ID   INT      NOT NULL,
+   NAME VARCHAR (20)   NOT NULL,
+   AGE  INT    NOT NULL,
+   ADDRESS  CHAR (25) ,
+   SALARY   DECIMAL (18, 2),      
+   PRIMARY KEY (ID)
+);
+----------------------------------------------
+7.Insert Command:-
+
+INSERT INTO CUSTOMERS (ID,NAME,AGE,ADDRESS,SALARY)
+VALUES (1, 'Ramesh', 32, 'Ahmedabad', 2000.00 );
+----------------------------------------------------------------
+8. SQL - AND and OR Conjunctive Operators
+
+a) SQL> SELECT ID, NAME, SALARY
+FROM CUSTOMERS
+WHERE SALARY > 2000 AND age < 25;
+
+b)SQL> SELECT ID, NAME, SALARY
+FROM CUSTOMERS
+WHERE SALARY > 2000 OR age < 25;
+--------------------------------------------------------------------
+9. update command:-
+
+SQL> UPDATE CUSTOMERS
+SET ADDRESS = 'Pune'
+WHERE ID = 6;
+-----------------------------------------------------------------
+10. delete command:-
+
+SQL> DELETE FROM CUSTOMERS
+WHERE ID = 6;
+---------------------------------------------------------------
+11. SQL - TOP, LIMIT or ROWNUM Clause
+
+a) SQL> SELECT TOP 3 * FROM CUSTOMERS;
+b) SQL> SELECT * FROM CUSTOMERS
+WHERE ROWNUM <= 3;
+c) SQL> SELECT * FROM CUSTOMERS
+LIMIT 3;
+-------------------------------------------------------------------------
+12. Alter Command:-
+
+  ALTER TABLE CUSTOMERS
+   MODIFY SALARY  DECIMAL (18, 2) NOT NULL;
+-----------------------------------------------------------------------
+13. SQL - Constraints
+
+a) NOT NULL Constraint - Ensures that a column cannot have NULL value.
+
+b) DEFAULT Constraint - Provides a default value for a column when none is specified.
+
+c) UNIQUE Constraint - Ensures that all values in a column are different.A table can have 1 or more numbers of unique columns and null values also allowed.
+
+d) PRIMARY Key - Uniquely identifies each row/record in a database table.A table can have only 1 primary column(key) and null values not allowed.
+
+e) FOREIGN Key - A column that references the column of another table.Uniquely identifies a row/record in any of the given database table.
+
+eg:-  CUSTOMERS table:-
+
+CREATE TABLE CUSTOMERS(
+   ID   INT              NOT NULL,      
+   PRIMARY KEY (ID)
+);
+
+ORDERS table:-
+
+CREATE TABLE ORDERS (
+   ID          INT        NOT NULL,
+   CUSTOMER_ID INT references CUSTOMERS(ID), --> FOREIGN key column.
+   PRIMARY KEY (ID)
+);
+
+======
+1. Any constraint that you have defined can be dropped using the ALTER TABLE command with the DROP CONSTRAINT option:-
+
+  ALTER TABLE ORDERS
+   DROP FOREIGN KEY;
+
+2. add a  constraint after table creation:-
+
+  eg:- a) ALTER TABLE CUSTOMERS
+         MODIFY AGE INT NOT NULL UNIQUE;
+
+b) ALTER TABLE CUSTOMER ADD PRIMARY KEY (ID);
+========
+f) CHECK Constraint - The CHECK constraint ensures that all the values in a column satisfies certain conditions.
+
+g) INDEX - Used to create and retrieve data from the database very quickly.
+------------------------------------------------------------------------------------------------------------
+
+14. SQL - Using Joins
+
+A) INNER JOIN - returns rows when there is a match in both tables.
+eg-1:
+   SQL> SELECT ID, NAME, AGE, AMOUNT
+   FROM CUSTOMERS, ORDERS
+   WHERE  CUSTOMERS.ID = ORDERS.CUSTOMER_ID;
+
+eg:-2 SQL> SELECT  ID, NAME, AMOUNT, DATE
+   FROM CUSTOMERS
+   INNER JOIN ORDERS
+   ON CUSTOMERS.ID = ORDERS.CUSTOMER_ID;
+
+B) LEFT JOIN - returns all rows from the left table, even if there are no matches in the right table.
+
+SQL> SELECT  ID, NAME, AMOUNT, DATE
+     FROM CUSTOMERS
+     LEFT JOIN ORDERS
+     ON CUSTOMERS.ID = ORDERS.CUSTOMER_ID;
+
+RIGHT JOIN - returns all rows from the right table, even if there are no matches in the left table.
+
+SQL> SELECT  ID, NAME, AMOUNT, DATE
+   FROM CUSTOMERS
+   RIGHT JOIN ORDERS
+   ON CUSTOMERS.ID = ORDERS.CUSTOMER_ID;
+
+FULL JOIN - returns rows when there is a match in one of the tables.
+
+eg:1 SQL> SELECT  ID, NAME, AMOUNT, DATE
+   FROM CUSTOMERS
+   FULL JOIN ORDERS
+   ON CUSTOMERS.ID = ORDERS.CUSTOMER_ID;--> it doesn't work in MySql.
+
+eg:2  SQL> SELECT  ID, NAME, AMOUNT, DATE
+   FROM CUSTOMERS
+   LEFT JOIN ORDERS
+   ON CUSTOMERS.ID = ORDERS.CUSTOMER_ID
+UNION ALL
+   SELECT  ID, NAME, AMOUNT, DATE
+   FROM CUSTOMERS
+   RIGHT JOIN ORDERS
+   ON CUSTOMERS.ID = ORDERS.CUSTOMER_ID
+
+SELF JOIN - is used to join a table to itself as if the table were two tables, temporarily renaming at least one table in the SQL statement.
+
+CARTESIAN JOIN - returns the Cartesian product of the sets of records from the two or more joined tables.
+
+----------------------------------------------------------------------
+distinct or unique:- distinct is use to suppress the duplicate rows.
+
+	
+	
+	
+

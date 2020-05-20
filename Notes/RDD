@@ -1,0 +1,193 @@
+RDD:-
+
+
+NOTE:- in hadoop MR if input format is text input format it translate input file into splits of type sequence file and key type is long writable(it interpret line offset as a key ) and value (interpret string as a value) type is text 
+
+-  https://medium.com/@aristo_alex/how-apache-sparks-transformations-and-action-works-ceb0d03b00d0
+
+A)  RDDs are Immutable and partitioned collection of records, which can only be created by coarse grained operations such as map, filter, group by etc. By coarse grained operations , it means that the operations are applied on all elements in a datasets. RDDs can only be created by reading data from a stable storage such as HDFS or by transformations on existing RDDs and it is distributed in nature so it can computes on the different node of the cluster. 
+
+• -   Resilient make sure that if one goes down in your cluster it can still recover from that and pick up from where it left off. 
+i.e. fault-tolerant with the help of RDD lineage graph and so able to recompute missing or damaged partitions due to node failures.(RDDs are created over a set of transformations ,
+           it logs those transformations, rather than actual data.Graph of transformations to produce one RDD is called as Lineage Graph).
+
+• -    Distributed, since Data resides on multiple nodes.
+• -    Dataset represents records of the data you work with, which can be either JSON file, CSV file, text file or database.
+
+• -    Lazy Evaluation means that the execution will not start until an action is triggered.in lazy evaluation data is not loaded until it is necessary.
+• What is lazy evaluation-
+     “LAZY” the word itself indicates its meaning ‘not at the same time’. That means, it evaluates something only when we require it. In accordance with a spark, it does not execute each operation right away, that means it does not start until we trigger any action. Once an action is called all the transformations will execute in one go.
+
+• There are 3 ways to create RDD in Spark are:
+
+• 1.Using parallelized collection - By calling the sparkcontext’s parallelize( ) method on it. sc.makeRDD() another function to create rdd.
+          This is a basic method to create RDD which is applied at the very initial stage of spark. It creates RDD very quickly.To operate this method, we need entire dataset on one machine. Due to this  property, this process is rarely used.
+                      
+                  Considering the following example of sortbykey() is a transformation.It returns an RDD sorted by Key.) (DAG will start evaluating when we call sortByKey even though we don’t action API. In general, DAG will evaluated only when we call an action. But in case of sortByKey, it start evaluating the DAG in order to compute total of partitions. Don’t think that we will get the result when we call sortByKey api. I have seen this DAG evaluation in WEB API. sortByKey api return type is RDD which is paired rdd. Out of all transformations available in spark, I think this is the only api that triggers DAG evaluation. For remaining transformation, DAG won’t be evaluated until we call an action.) method. In this programs, the values to be sorted is taken through the parallelized collection: For Example:
+
+                        val dataRDD = sc.parallelize(Seq(("maths",52),("english",75),("science",82), ("computer",65),("maths",85)))
+                        val sorted = data.sortByKey()
+                        sorted.foreach(println)
+∘   Output:-  
+∘ (maths,52)
+∘ (science,82)
+∘ (computer,65)
+∘ (english,75)
+∘ (maths,85)
+               
+
+            -      We can  set a number of partitions by our own, By pass a number of partition as the second parameter in parallelize method.
+
+                           val rdd1 = sc.parallelize(Array("sun","mon","tue","wed","thu","fri"),4)
+
+                           val result = rdd1.coalesce(3)
+
+                           result.foreach(println)
+
+• 2.From external datasets (Referencing a dataset in external storage system ).- RDD's are created either from collection or external datasets are called Base RDD's.
+                 ex 1:- val stockRDD = sc.textFile("file:///home/nikhil/bigdata/jobs/stocks")
+                                        stockRDD.first
+                                        stockRDD.getNumPartitions
+                                             output-  res16: Int = 2
+                
+             ex:2 val ratingRDD = sc.newAPIHadoopFile("file:///home/nikhil/bigdata/jobs/stocks", classof[TextInputFormat], classof[LongWritable], classof[Text],  sc.hadoopConfiguration)
+
+val ratingRDD = sc.newAPIHadoopFile("file:///home/nikhil/bigdata/jobs/stocks", classof[TextInputFormat], classof[LongWritable], classof[Text], sc.hadoopConfiguration).map(record => (record._1.get. record._2.tostring))
+
+
+
+
+newAPIHadoopFile - for any file format we have to use this method ..it is global method to create RDD out of an external dataset which is stored in hdfs or any hadoop compatible file system.
+
+ex3 :-   hadoopConf.set(FileInputFormat.INPUT_DIR, "file:///home/nikhil/bigdata/jobs/stocks")
+            val dataRDD = sc.newAPIHadoopRDD(hadoopConf, classof[TextInputFormat], classof[LongWritable], classof[Text])
+                  dataRDD.map(_._2.toString)
+
+• 3.From existing RDD
+                           val  dataRDD =  sc.textfile("path of textfile") - Base RDD.
+                           mydataRDD   =  dataRDD.map(Function)
+                           projdataRDD =  mydataRDD.filter(Function)
+                           fitdataRDD    =  projdataRDD.filter(Function)      - Transformed RDD                     
+
+B) What are the RDD Operations
+
+    1. Transformations - Are used to transform one RDD into another RDD.
+                              Transformations are kind of operations which will transform your RDD data from one form to another and you will get a new RDD with 
+                               transformed data.Operations like map, filter, flatMap are transformations.
+
+                           There are two kinds of transformations: narrow transformation, wide transformation.
+
+      Narrow transformation — Narrow transformation no data regrouping or data shuffling takes place i.e execution in same stage (no additional stage).
+                                                   ex:- map , flatmap, mappartition, filter, sample.
+
+                           val  dataRDD =  sc.textfile("path of textfile") 
+                           mydataRDD   =  dataRDD.map(Function)
+                           projdataRDD =  mydataRDD.filter(Function)
+                                           projdataRDD.count()
+
+
+               Wide transformation — In wide transformation, it is a transformation which require data shuffling or data regrouping.   it creates the additional stages.
+                                                 eg:- Intersection, Distinct, ReduceByKey, GroupByKey, join, cartesian, repartition, coalesce.
+                                                  
+                                                                          
+                           val dataRDD =  sc.textfile("path of textfile", 4) 
+                           mydataRDD   =  dataRDD.map(F1)
+                           projdataRDD =  mydataRDD.filter(F2)
+                           pairedRDD[(k,v)]=projdataRDD.map(F3)
+                            aggRDD=pairedRDD.reducebykey(f4,2)
+                                           aggRDD.collect()
+   
+
+ 2. Actions - actions are RDD operations that give non-RDD values. The values of action are stored to drivers or to the external storage system. Every RDD action is one Spark Job and Job is DAG of tasks.
+
+                   An action is one of the ways of sending data from Executer to the driver. 
+                   Executors are agents that are responsible for executing a task. 
+                  While the driver is a JVM process that coordinates workers and execution of the task.
+
+
+ C)     DAG in Spark
+
+Through DAG, Spark maintains the record of every operation performed, DAG refers to Directed Acyclic Graph. That keeps the track of each step through its arrangement of vertices and edges. So, when we call any action it strikes to DAG graph directly and DAG keeps maintenance of operations which triggers the execution process forward.It enhances the efficiency of the system by reducing a number of executions of operations. 
+
+If we talk about Hadoop mapreduce, we need to minimize the steps of mapreduce passes. That is only possible by clubbing the operations together. While in spark DAG graph already maintains the graph of all the operations, it clubs all the operations in one. Rather than making single execution graph for each operation. Thus it creates a difference between Hadoop mapreduce and apache spark.
+
+So, in this way by waiting until last minute to execute our code will also enhance the performance. It also boosts the efficiency of the process over the cluster.
+
+   Advantages Of DAG:-
+
+1.Reduces Complexities - As we know that, we are not executing every operation rather than we are executing the entire process only once. It allows us to work with an infinite data structure. An action is only triggered when it is required. It results in saving the time as well as reducing the space complexity.
+
+2.Saves Computation and increases speed
+Due to this process, we are not performing every calculation at the instance. This is saving us from the bundle of calculations we owe. Now we only need to calculate important values, that saves our time and also speeds up the process.
+
+Advantage Of Lineage Graph:-
+
+• In case of we lose some partition of RDD , we can replay the transformation on that partition  in lineage to achieve the same computation, rather than doing data replication across multiple nodes.This characteristic is biggest benefit of RDD , because it saves a lot of efforts in data management and replication and thus achieves faster computations.
+
+D) Features of RDD
+
+i. In-memory computation
+ii. Lazy Evaluation - The data inside RDDs are not evaluated on the go, the computation is performed only after an action is triggered. 
+iii. Fault Tolerance -Upon the failure of worker node, using lineage of operations we can re-compute the lost partition of RDD from the original one. Thus, we can easily recover the lost data. Learn Fault tolerance is Spark in detail.
+iv. Immutability - RDDS are immutable in nature meaning once we create an RDD we can not manipulate it. And if we perform any transformation, it creates new RDD. We achieve consistency through immutability.
+v. Persistence - We can store the frequently used RDD in in-memory and we can also retrieve them directly from memory without going to disk, this speedup the execution. We can perform Multiple operations on the same data, this happens by storing the data explicitly in memory by calling persist() or cache() function. Follow this guide for the detailed study of RDD persistence in Spark.
+vi. Partitioning - RDD partition the records logically and distributes the data across various nodes in the cluster.  Thus, it provides parallelism.
+vii. Parallel - Rdd, process the data parallelly over the cluster.
+viii. Location-Stickiness - RDDs are capable of defining placement preference to compute partitions. Placement preference refers to information about the location of RDD. The DAG Scheduler places the partitions in such a way that task is close to data as much as possible. Thus speed up computation. Follow this guide to learn What is DAG?
+ix. Coarse-grained Operation - We apply coarse-grained transformations to RDD. Coarse-grained meaning the operation applies to the whole dataset not on an individual element in the data set of RDD.
+x. Typed - We can have RDD of various types like: RDD [int], RDD [long], RDD [string].
+xi. No limitation - we can have any number of RDD. there is no limit to its number. the limit depends on the size of disk and memory.
+
+*E) Limitations of RDD :-
+
+F) RDD persistence or Caching:- to avoid the recomputing on same datasets we use data caching and persistence.RDD are persisted by default In Memory inside  executor.
+RDD can be persisted in memory, in diks, combination, offheap etc
+.
+G) RDD checkpoint - In spark, jobs are executes in multi stage manner,so from 1st stage to another stage lot of data suffling takes place, In case of spark task failure those taskks are going to recomputed from the beginning. so to avoid this kind of unnecessary computation spark offers checkpointing.so the stage which is pron to failures is better to checkpoint toavoid the recoputation and to achieve the fault tolerance.
+
+H) Paired RDD's :- Spark Paired RDDs are nothing but RDDs containing a key-value pair.
+
+For example,
+Basically here we are using the reduceByKey operation on key-value pairs. In this code we will count how many times each line of text occurs in a file:
+val lines22 = sc.textFile(“data1.txt”)
+val pairs22= lines22.map(s => (s, 1))
+val counts1 = pairs22.reduceByKey((a, b) => a + b)
+Although, one more method we can use is counts.sortByKey().
+
+
+Doubts:-
+
+-  reducebykey, aggregatebykey
+
+   (age, numFriends) - kaise decide hua ki age ki key h kuki m ne to kahin bhi specify nhi kia.
+
+• use of toString method? and Collect?
+• val age = fields(2).toInt what was the need because age of person was already int in friends data set.
+
+- use of mapValues and flatMapValues? and how they are different from map and flatMap.
+
+
+
+- when we start an execution plan, the execution plan is broken into stages based on the things(transformation and actions) that can be processed together in parallel.
+
+• jab java api use karte h like newApiFile rdd creation k liye to java serilization karna padta jaise_1.get  to see the output aisa ku karte h..(driver aur executor k beech k communication k liye?).
+
+- what is Driver Program or driver program?.
+
+
+val ratingRDD = sc.newAPIHadoopFile("file:///home/nikhil/bigdata/jobs/stocks", classof[TextInputFormat], classof[LongWritable], classof[Text], sc.hadoopConfiguration)
+
+
+Collect - It just collects all of the data in RDD and passes it back to your driver scripts.
+
+sample - It create an random sample from an RDD, use for testing lot of times.
+
+• What is Shuffling?
+
+
+• manual partitioning is important to correctly balance partitions. Generally, smaller partitions allow distributing RDD data more equally, among more executors. Hence, fewer partitions make the work easy.
+
+
+
+
+
