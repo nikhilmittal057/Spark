@@ -1,0 +1,7 @@
+1,San Francisco,CA,USA,NA
+2,Boston,MA,USA,NA
+3,NYC,NY,USA,NA
+4,Paris,NULL,France,EMEA
+5,Tokyo,Chiyoda,Japan,Japan
+6,Sydney,NULL,Australia,APAC
+7,London,NULL,UK,EMEA
